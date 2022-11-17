@@ -1,0 +1,6 @@
+#join__container {
+    display: grid;
+    margin: 100px 0;
+    grid-template-columns: 200px 800px;
+    height: 700px;
+}

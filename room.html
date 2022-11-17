@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <link rel="stylesheet" href="styles/main.css" />
+        <link rel="stylesheet" href="styles/room.css" />
+    </head>
+    <body>
+        <header id="nav">
+            <div class="nav--list">
+                <a href="/">
+                    <h3 id="logo">
+                        <img src="./images/logo.png" alt="Site logo" />
+                        <span>Arsenal</span>
+                    </h3>
+                </a>
+            </div>
+            <div id="nav__links">
+                <a class="nav__link" href="/">
+                    Lobby
+                </a>
+                <a class="nav__link" id="create__room__btn" href="join.html">
+                    Create Room
+                </a>
+            </div>
+        </header>
+        <main id="room__container">
+            <section id="participants__container">
+                <div id="participants__header">
+                    <p>Room Members</p>
+                    <p id="member__count">0</p>
+                </div>
+            </section>
+            <section id="messages"></section>
+
+            <div id="form__container">
+                <form id="message__form">
+                    <input
+                        type="text"
+                        required
+                        name="message"
+                        autocomplete="off"
+                    />
+                </form>
+            </div>
+        </main>
+    </body>
+    <script src="js/agora-rtm-sdk-1.5.1.js"></script>
+    <script type="module" src="js/room.js"></script>
+</html>

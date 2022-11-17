@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <link rel="stylesheet" href="styles/main.css" />
+        <link rel="stylesheet" href="styles/join.css" />
+    </head>
+    <body>
+        <header id="nav">
+            <div class="nav--list">
+                <a href="/">
+                    <h3 id="logo">
+                        <img src="./images/logo.png" alt="Site logo" />
+                        <span>Arsenal</span>
+                    </h3>
+                </a>
+            </div>
+            <div id="nav__links">
+                <a class="nav__link" href="/"> Lobby </a>
+                <a class="nav__link" id="create__room__btn" href="join.html">
+                    Create Room
+                </a>
+            </div>
+        </header>
+        <main id="join__container">
+            <div id="form__container">
+                <div id="form__container__header">
+                    <p>Join Room:</p>
+                </div>
+                <form id="lobby__form">
+                    <div class="form__field__wrapper">
+                        <label>Your Name</label>
+                        <input
+                            type="text"
+                            name="name"
+                            required
+                            placeholder="Enter your name..."
+                        />
+                    </div>
+                    <div class="form__field__wrapper">
+                        <label>Room Name</label>
+                        <input
+                            type="text"
+                            name="room"
+                            required
+                            placeholder="Enter your room..."
+                        />
+                    </div>
+                    <div class="form__field__wrapper">
+                        <input type="submit" value="Join" />
+                    </div>
+                </form>
+            </div>
+        </main>
+    </body>
+    <script src="js/agora-rtm-sdk-1.5.1.js"></script>
+    <script type="module" src="js/join.js"></script>
+</html>
