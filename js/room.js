@@ -5,7 +5,7 @@ import { APP_ID } from './env.js'
 
 let appID = APP_ID
 let token = null
-let uid = String(Math.floor(Math.random() * 232))
+let uid = sessionStorage.getItem('display__id')
 
 let urlParams = new URLSearchParams(window.location.search)
 
@@ -16,6 +16,8 @@ if (room === null || displayName === null) {
     window.location = 'join.html?room=${room}'
 }
 
+let myAvatar = sessionStorage.getItem('avatar')
+
 let initiate = async () => {
     let rtmClient = await AgoraRTM.createInstance(appID)
     await rtmClient.login({ uid, token })
@@ -24,6 +26,7 @@ let initiate = async () => {
     await channel.join()
 
     await rtmClient.addOrUpdateLocalUserAttributes({ 'name': displayName })
+    await rtmClient.addOrUpdateLocalUserAttributes({ 'avatar': myAvatar })
 
     channel.on('MemberLeft', async (memberId) => {
         removeParticipantFromDom(memberId)
@@ -42,7 +45,9 @@ let initiate = async () => {
     channel.on('ChannelMessage', async (messageData, memberId) => {
         let data = JSON.parse(messageData.text)
         let name = data.displayName
-        addMessageToDom(data.message, memberId, name)
+        let avatar = data.avatar
+
+        addMessageToDom(data.message, memberId, name, avatar)
 
         let participants = await channel.getMembers()
         updateParticipantTotal(participants)
@@ -50,25 +55,72 @@ let initiate = async () => {
 
     let addParticipantToDom = async (memberId) => {
         let { name } = await rtmClient.getUserAttributesByKeys(memberId, ['name'])
+        let { avatar } = await rtmClient.getUserAttributesByKeys(memberId, ['avatar'])
 
         let membersWrapper = document.getElementById('participants__container')
         let memberItem =
-            `<div id="member__${memberId}__wrapper" class="member__wrapper">
-                <span class="green_dot"></span>
-                <p>${name}</p>
-            </div>`
+            `<li class="person" data-chat="person1" id="member__${memberId}__wrapper">
+                <div class="user">
+                    <img src="${avatar}" alt="Retail Admin"/>
+                    <span class="status online"></span>
+                </div>
+                <p class="name-time">
+                    <span class="name">${name}</span>
+                </p>
+            </li>`
         membersWrapper.innerHTML += memberItem
     }
 
-    let addMessageToDom = async (messageData, memberId, displayName) => {
+    let addMessageToDom = async (messageData, memberId, displayName, avatar) => {
         let created = new Date().toLocaleTimeString([], { hour: 'numeric', minute: 'numeric' })
+        if (created.startsWith("0")) {
+            created = created.substring(1)
+        }
         let messagesWrapper = document.getElementById('messages')
-        let messageItem =
-            `<div class="message__wrapper">
-                <small>${created}</small>
-                <p>${displayName}</p>
-                <p class="message">${messageData}</p>
-            </div>`
+        let messageItem
+
+        if (memberId === uid) {
+            messageItem =
+                `<li class="chat-right">
+                    <div class="chat-text">
+                        <div class="chat-name">
+                            <span class="fa fa-check-circle"></span>
+                            ${displayName}
+                        </div>
+                        <div class="chat-hour" style="justify-content: right;">
+                            ${created}
+                        </div>
+                        ${messageData}
+                    </div>
+                    <div class="chat-avatar">
+                        <img
+                            src="${avatar}"
+                            alt="Retail Admin"
+                        />
+                    </div>
+                </li>`
+        } else {
+            messageItem =
+                `<li class="chat-left">
+                    <div class="chat-avatar">
+                        <img
+                            src="${avatar}"
+                            alt="Retail Admin"
+                        />
+                        
+                    </div>
+                    <div class="chat-text">
+                        <div class="chat-name">
+                            ${displayName}
+                            <span class="fa fa-check-circle"></span>
+                        </div>
+                        <div class="chat-hour" style="justify-content: left;">
+                            ${created}
+                        </div>
+                        ${messageData}
+                    </div>
+                </li>`
+        }
         messagesWrapper.insertAdjacentHTML('beforeend', messageItem)
         messagesContainer.scrollTop = messagesContainer.scrollHeight
     }
@@ -76,8 +128,8 @@ let initiate = async () => {
     let sendMessage = async (e) => {
         e.preventDefault()
         let message = e.target.message.value
-        channel.sendMessage({ text: JSON.stringify({ 'message': message, 'displayName': displayName }) })
-        addMessageToDom(message, uid, displayName)
+        channel.sendMessage({ text: JSON.stringify({ 'message': message, 'displayName': displayName, 'avatar': myAvatar }) })
+        addMessageToDom(message, uid, displayName, myAvatar)
         e.target.reset()
     }
 
@@ -86,7 +138,7 @@ let initiate = async () => {
         total.innerText = participants.length
     }
 
-    let getParticipants = async () => {
+    let getParticipants = async (e) => {
         let participants = await channel.getMembers()
         updateParticipantTotal(participants)
         for (let i = 0; participants.length > i; i++) {
